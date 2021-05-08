@@ -17,7 +17,7 @@ typedef struct
  
  
 
-
+void intro                     (void);
 int  CaminoCorto              (void);
 void PedirCaminos            (Datos *);
 void BuscarCaminoCorto        (Datos *,int [20][2]);
@@ -33,12 +33,24 @@ void Flush_in                (void);
  
 int main()
 {
+	intro();
 	CaminoCorto();
+	
 	return 0;
 }
  
 
- 
+void intro(void){
+	
+	printf("\n\n\n\tGRUPO 5");
+	printf("\n\n\n\n\tINTEGRANTES");
+	printf("\n\n\tDominguez Ocaña, Renzo Luis\n\tFlores Lau, Richard Alonso\n\tCruzate Huayta, Marco Julian\n\tCuri Vasquez, Andrea Johana ");
+	printf("\n\n\n\n\tPRESIONE ENTER PARA CONTINUAR");
+	
+	
+	Flush_in();
+	
+}
 int CaminoCorto(void)
 {
 	int ruta[20][2]= {0};
