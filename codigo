@@ -1,319 +1,404 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
- 
+
+#include<iostream>
+#include<time.h>
+
+
 #ifdef _WIN32
-	#define LIMPIAR_PANTALLA system("cls");
+#define LIMPIAR_PANTALLA system("cls");
 #else
-	#define LIMPIAR_PANTALLA system("clear");
+#define LIMPIAR_PANTALLA system("clear");
 #endif
-  
-  
-typedef struct 
+
+using namespace std;
+
+typedef struct
 {
 	int G[20][20];
-	int num_ptos;
+	int num_ciudades;
 } Datos;
- 
- 
+
 
 void intro                     (void);
-int  CaminoCorto              (void);
-void PedirCaminos            (Datos *);
-void BuscarCaminoCorto        (Datos *,int [20][2]);
-int  BuscarF            (Datos *,int, int[20][2]);
-void GuardarP           (int [20][2], int);
-void GuardarD            (int [20][2], int);
-void QuitarPvisit (Datos *, int [20][2], int, bool);
-void ImprimirCaminoCorto      (int [20][2], int);
-int  SumCaminos       (int [20][2], int);
-void Repe        (void);
-void Flush_in                (void); 
+int  CaminoCorto(void);
+void PedirCaminos(Datos*);
+void BuscarCaminoCorto(Datos*, int[20][2]);
+int  BuscarF(Datos*, int, int[20][2]);
+void GuardarCiudad(int[20][2], int);
+void GuardarValor(int[20][2], int);
+void QuitarCiudadesVisitadas(Datos*, int[20][2], int, bool);
+void ImprimirRutaOptima(int[20][2], int);
+int  SumCaminos(int[20][2], int);
+void RepetirPrograma(void);
+void Flush_in(void);
 
- 
 int main()
+
 {
 	intro();
 	CaminoCorto();
-	
 	return 0;
 }
- 
+
 
 void intro(void){
 	
 	printf("\n\n\n\tGRUPO 5");
 	printf("\n\n\n\n\tINTEGRANTES");
-	printf("\n\n\tDominguez Ocaña, Renzo Luis\n\tFlores Lau, Richard Alonso\n\tCruzate Huayta, Marco Julian\n\tCuri Vasquez, Andrea Johana ");
+	printf("\n\n\tDominguez Ocaña, Renzo Luis\n\tFlores Lau, Richard Alonso\n\tCruzate Huayta, Marco Julian\n\tCuri Vasquez, Andrea Johana\n\tMuñico Soto, Andy ");
 	printf("\n\n\n\n\tPRESIONE ENTER PARA CONTINUAR");
 	
 	
 	Flush_in();
 	
 }
+
 int CaminoCorto(void)
 {
-	int ruta[20][2]= {0};
-	Datos datos = {0,0};
- 
+	int ruta[20][2] = { 0 };
+	Datos datos = { 0,0 };
+
 	do
 	{
 		LIMPIAR_PANTALLA
-		printf("\n\n\n\tIngrese el numero de ciudades que desea visitar (5 - 20): ");
-		scanf("%d",&datos.num_ptos);
+
+		printf("\n\n\n\tAGENTE VIAJERO ");
+		printf("\n\n\n\tCuantas ciudades desea visitar (3 - 10)");
+		printf("\n\t>>> ");
+		scanf("%d", &datos.num_ciudades);
 		Flush_in();
- 
-		if (datos.num_ptos < 5 || datos.num_ptos > 20)
+
+		if (datos.num_ciudades < 3 || datos.num_ciudades > 10)
 		{
-			printf("\n\n\t\t** Ingrese numero entre 5 y 20 **");
+			printf("\n\n\t\t** El numero de ciudades tiene que estar entre 3 y 10 **");
+			printf("\n\n\t\t** Presione ENTER para intentarlo de nuevo. **");
 			getchar();
 		}
- 
-	} while (datos.num_ptos < 5 || datos.num_ptos > 20);
- 
+
+	} while (datos.num_ciudades < 3 || datos.num_ciudades > 10);
+
 	PedirCaminos(&datos);
 	BuscarCaminoCorto(&datos, ruta);
-	ImprimirCaminoCorto(ruta, datos.num_ptos);
-	Repe();
- 
+	ImprimirRutaOptima(ruta, datos.num_ciudades);
+	RepetirPrograma();
+
 	return 0;
 }
- 
-void PedirCaminos(Datos *datos)
+
+void PedirCaminos(Datos* datos)
 {
 	int i, j;
- 
+	int opc;
+	
+	srand(time(NULL));
 	LIMPIAR_PANTALLA
-	printf("\n\n\tIngrese la distancia entre las \n\tciudades:\n\n");
- 
-	for (i = 0; i < (datos -> num_ptos); i++)
-	{
-	    datos -> G[i][i] = 0;
- 
-	    for (j = i + 1; j < (datos -> num_ptos); j++)
-	    {	
-    		printf("\n\tCiudad %d --> Ciudad %d : ", i+1, j+1);
-     		scanf("%d",&datos -> G[i][j]);
-     		Flush_in();
- 
-     		datos -> G[j][i] = datos -> G[i][j];
-	    }
-    }
+
+		printf("\tMENU DE DISTANCIA.");
+		printf("\t\t\n	1. Aleatorio.\n");
+		printf("\t\t\n	2. Digitar yo mismo.\n");
+		printf("\t\t\n	Eliga una opcion");
+		printf("\t\t\n	>>> ");
+
+		cin >> opc;
+		LIMPIAR_PANTALLA
+		switch (opc)
+		{
+
+		case 1:
+
+			LIMPIAR_PANTALLA
+			printf("\n\n\tA continuacion las distancia en kilometros de las siguientes\n\ttrayectorias se formaran de forma aleatoria:\n\n");
+			for (i = 0; i < (datos->num_ciudades); i++)
+			{
+				datos->G[i][i] = 0;
+
+				for (j = i + 1; j < (datos->num_ciudades); j++)
+				{
+						printf("\n\tCiudad %d --> Ciudad %d : ", i + 1, j + 1);
+
+						
+						printf("%d", datos->G[i][j] = 1 + rand() % (101 - 1));
+						
+						datos->G[j][i] = datos->G[i][j];
+						cout<<"\t\t"<<endl;
+						
+				}
+			}
+			
+			cout<<"\t"<<endl;
+
+			system("pause");
+			
+
+			break;
+
+		case 2: 
+
+
+			printf("\n\n\tA continuacion escriba la distancia en kilometros de las siguientes\n\ttrayectorias:\n\n");
+			for (i = 0; i < (datos->num_ciudades); i++)
+			{
+				datos->G[i][i] = 0;
+
+				for (j = i + 1; j < (datos->num_ciudades); j++)
+				{
+
+
+
+					do
+					{
+
+
+
+						printf("\n\tCiudad %d --> Ciudad %d : ", i + 1, j + 1);
+
+						scanf("%d", &datos->G[i][j]);
+						
+
+						Flush_in();
+
+
+						if (datos->G[i][j] < 1 || datos->G[i][j] > 10000)
+						{
+							LIMPIAR_PANTALLA
+								printf("\n\n\t\t** Valor no permitido. **");
+							printf("\n\n\t\t** Presione ENTER para volver intentarlo. **");
+							getchar();
+							LIMPIAR_PANTALLA
+								printf("\n\n\tA continuacion escriba la distancia en kilometros de las siguientes\n\ttrayectorias:\n\n");
+
+						}
+
+					} while (datos->G[i][j] < 1 || datos->G[i][j] > 10000);
+
+
+
+
+					datos->G[j][i] = datos->G[i][j];
+				}
+			}
+
+			break;
+
+		default:
+			break;
+		}
+
 }
- 
-void BuscarCaminoCorto(Datos *datos, int r[20][2])
+
+void BuscarCaminoCorto(Datos* datos, int r[20][2])
 {
 	int i, inicio, indice_del_menor;
- 
+
 	do
 	{
 		LIMPIAR_PANTALLA
-		printf("\n\n\n\t\tIndique el punto de partida: ");
+			printf("\n\n\n\t\tDigite el numero de la ciudad (1-%d) donde desea comenzar su ruta : ", datos->num_ciudades);
 		scanf("%d", &inicio);
 		Flush_in();
- 
-		if (inicio < 1 || inicio > (datos -> num_ptos))
+
+		if (inicio < 1 || inicio >(datos->num_ciudades))
 		{
-			printf("\n\t\t** El punto de partida debe estar entre 1 y %d **", datos -> num_ptos);
+			printf("\n\t\t** La ciudad debe estar entre 1 y %d **", datos->num_ciudades);
 			getchar();
 		}
-	}while(inicio < 1 || inicio > (datos -> num_ptos));
- 
+	} while (inicio < 1 || inicio >(datos->num_ciudades));
+
 	r[0][0] = inicio;
- 
-	inicio--;	
- 
-	for (i = 0; i < (datos -> num_ptos); i++)
-	{			
-		if(i == 0)
+
+	inicio--;
+
+	for (i = 0; i < (datos->num_ciudades); i++)
+	{
+		if (i == 0)
 		{
 			indice_del_menor = BuscarF(datos, inicio, r);
-			QuitarPvisit(datos, r, indice_del_menor, false);
+			QuitarCiudadesVisitadas(datos, r, indice_del_menor, false);
 		}
 		else
+		{
+			if (i == (datos->num_ciudades) - 2)
 			{
-				if (i == (datos -> num_ptos) - 2)
-				{
-					indice_del_menor = BuscarF(datos, indice_del_menor, r);
-					QuitarPvisit(datos, r, indice_del_menor, true);
-				}
-				else
-				{
-					indice_del_menor = BuscarF(datos, indice_del_menor, r);
-					QuitarPvisit(datos, r, indice_del_menor, false);
-				}
-			}		
+				indice_del_menor = BuscarF(datos, indice_del_menor, r);
+				QuitarCiudadesVisitadas(datos, r, indice_del_menor, true);
+			}
+			else
+			{
+				indice_del_menor = BuscarF(datos, indice_del_menor, r);
+				QuitarCiudadesVisitadas(datos, r, indice_del_menor, false);
+			}
+		}
 	}
 }
- 
-int BuscarF(Datos *datos, int inicio, int r[20][2])
+
+int BuscarF(Datos* datos, int inicio, int r[20][2])
 {
 	int j, menor = 999999, indice_del_menor;
- 
-	for (j = 0; j < (datos -> num_ptos); j++)
+
+	for (j = 0; j < (datos->num_ciudades); j++)
 	{
-		if ( (datos -> G[inicio][j]) != 0 )
+		if ((datos->G[inicio][j]) != 0)
 		{
-			if ( (datos -> G[inicio][j]) < menor )
+			if ((datos->G[inicio][j]) < menor)
 			{
-				menor =	 datos -> G[inicio][j];
+				menor = datos->G[inicio][j];
 				indice_del_menor = j;
 			}
 		}
-	}	
- 
-	GuardarP(r ,indice_del_menor);
-	GuardarD(r, menor);
- 
+	}
+
+	GuardarCiudad(r, indice_del_menor);
+	GuardarValor(r, menor);
+
 	return indice_del_menor;
 }
- 
-void GuardarP(int r[20][2] , int indice_del_menor)
+
+void GuardarCiudad(int r[20][2], int indice_del_menor)
 {
-	int i, num_ptos_visitados;
- 
-	i= 0;
-	num_ptos_visitados = 0;
- 
-	while(r[i][0] != 0)
-	{
-		i++;
-		num_ptos_visitados++;
-	}
- 
-	r[num_ptos_visitados][0] = indice_del_menor + 1;
-}
- 
-void GuardarD(int r[20][2], int menor)
-{
-	int i, num_ptos_visitados;
- 
-	i=0;
-	num_ptos_visitados = 0;
- 
-	while(r[i][1] != 0)
-	{
-		i++;
-		num_ptos_visitados ++;
-	}
- 
-	r[num_ptos_visitados][1] = menor;
-}
- 
-void QuitarPvisit(Datos *datos, int r[20][2], int indice_del_menor, bool penultimo)
-{
-	int i, num_ptos_visitados, aux;
- 
+	int i, num_ciudades_visitadas;
+
 	i = 0;
-	num_ptos_visitados = 0;
- 
-	while(r[i][1] != 0)
+	num_ciudades_visitadas = 0;
+
+	while (r[i][0] != 0)
 	{
 		i++;
-		num_ptos_visitados++;
+		num_ciudades_visitadas++;
 	}
- 
+
+	r[num_ciudades_visitadas][0] = indice_del_menor + 1;
+}
+
+void GuardarValor(int r[20][2], int menor)
+{
+	int i, num_ciudades_visitadas;
+
+	i = 0;
+	num_ciudades_visitadas = 0;
+
+	while (r[i][1] != 0)
+	{
+		i++;
+		num_ciudades_visitadas++;
+	}
+
+	r[num_ciudades_visitadas][1] = menor;
+}
+
+void QuitarCiudadesVisitadas(Datos* datos, int r[20][2], int indice_del_menor, bool penultimo)
+{
+	int i, num_ciudades_visitadas, aux;
+
+	i = 0;
+	num_ciudades_visitadas = 0;
+
+	while (r[i][1] != 0)
+	{
+		i++;
+		num_ciudades_visitadas++;
+	}
+
 	if (penultimo == true)
 	{
-		for (i = num_ptos_visitados; i >= 1; i--)
+		for (i = num_ciudades_visitadas; i >= 1; i--)
 		{
 			aux = r[i][0];
 			aux = aux - 1;
-			datos -> G[indice_del_menor][aux] = 0;
+			datos->G[indice_del_menor][aux] = 0;
 		}
 	}
 	else
 	{
-		for (i = num_ptos_visitados; i >= 0; i--)
+		for (i = num_ciudades_visitadas; i >= 0; i--)
 		{
 			aux = r[i][0];
 			aux = aux - 1;
-			datos -> G[indice_del_menor][aux] = 0;
+			datos->G[indice_del_menor][aux] = 0;
 		}
 	}
 }
- 
-void ImprimirCaminoCorto(int ruta[20][2], int n)
+
+void ImprimirRutaOptima(int ruta[20][2], int n)
 {
 	int i, total;
- 
+
 	total = SumCaminos(ruta, n);
- 
-	printf("\n\n\tLa ruta mas corta seria: ");
- 
+
+	printf("\n\n\tUna ruta optima seria: ");
+
 	for (i = 0; i < n + 1; i++)
 	{
 		if (i == n)
- 
+
 			printf(" %d\n", ruta[i][0]);
- 
+
 		else
- 
-			printf(" %d ->", ruta[i][0]);		
+
+			printf(" %d ->", ruta[i][0]);
 	}
- 
-	printf("\n\n\tDistancia recorrida:");
- 
+
+	printf("\n\n\tTotal de kilometros recorridos:");
+
 	for (i = 0; i < n; i++)
 	{
-		if (i == n-1)
- 
-			printf(" %d = %d\n\n", ruta[i][1],total);
- 
-		else	
- 
-			printf(" %d +", ruta[i][1]);	
+		if (i == n - 1)
+
+			printf(" %d = %d\n\n", ruta[i][1], total);
+
+		else
+
+			printf(" %d +", ruta[i][1]);
 	}
- 
+	cout << "	Presionar ENTER para continuar" << endl;
 	getchar();
 }
- 
+
 int SumCaminos(int r[20][2], int n)
 {
-	int i, total=0;
- 
+	int i, total = 0;
+
 	for (i = 0; i < n; i++)
- 
+
 		total += r[i][1];
- 
+
 	return total;
 }
- 
-void Repe(void){
+
+void RepetirPrograma(void) {
 	int opcion;
- 
+
 	do
 	{
 		LIMPIAR_PANTALLA
-		printf("\n\n\t\tRepetir programa?\n\n\t 1.Si\n\n\t 2.No");
+			printf("\n\n\t\tDesea repetir de nuevo el programa\n\n\t 1.Si\n\n\t 2.No");
 		printf("\n\n\n\tElegir opcion: ");
 		scanf("%d", &opcion);
 		Flush_in();
- 
-		switch(opcion)
-			{
-				case 1:
-					CaminoCorto();
+
+		switch (opcion)
+		{
+		case 1:
+			CaminoCorto();
+			break;
+
+		case 2:
+			LIMPIAR_PANTALLA
 				break;
- 
-				case 2:
-					LIMPIAR_PANTALLA
-				break;
- 
-				default:
-					printf("\n\n\tOpcion no valida");
-					getchar();
-				break;
-			}
+
+		default:
+			printf("\n\n\tOpcion no valida");
+			getchar();
+			break;
+		}
 	} while (opcion < 1 || opcion > 2);
 }
- 
- 
 
- 
-void Flush_in (void)
+
+void Flush_in(void)
 {
 	char caracter;
- 
-	while((caracter = fgetc(stdin)) != EOF && caracter != '\n');
+
+	while ((caracter = fgetc(stdin)) != EOF && caracter != '\n');
 }
